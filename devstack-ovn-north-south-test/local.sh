@@ -169,3 +169,5 @@ ovn-nbctl -- --id=@nat create nat type="snat" logical_ip=172.16.255.128/25 \
 # point floating IP to VM1
 ovn-nbctl -- --id=@nat create nat type="dnat_and_snat" logical_ip=172.16.255.130 \
         external_ip=$floating_testip -- add logical_router edge1 nat @nat
+
+sudo ping $floating_testip -i 0.01 -c 1000

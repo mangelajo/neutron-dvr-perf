@@ -96,6 +96,6 @@ neutron security-group-rule-create $DMZ_VM1_SGID --direction ingress
 
 FIP_ID=$(neutron floatingip-create public | awk '/ id / { print $4 }')
 FIP_IP=$(neutron floatingip-show $FIP_ID  | awk '/ floating_ip_address / { print $4 }')
-neutron floatingip-associate $FIP_ID $DMZ_VM1_ID 
-ping -c 10 $FIP_IP
-
+neutron floatingip-associate $FIP_ID $DMZ_VM1_ID
+sleep 5
+sudo ping $FIP_IP -i 0.01 -c 1000
