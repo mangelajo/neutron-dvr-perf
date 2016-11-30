@@ -14,7 +14,7 @@ ID_DMZ=$(neutron subnet-create dmz --name dmz_subnet 172.16.255.128/26 --disable
 ID_INSIDE=$(neutron subnet-create inside --name inside_subnet 172.16.255.192/26 --disable-dhcp| awk '/ id / { print  $4 }')
 
 neutron port-create --device-owner compute:container --name dmz-vm1 \
-                    dmz \   
+                    dmz \
                     --fixed-ip subnet_id=$ID_DMZ,ip_address=172.16.255.130 \
                     --binding:host_id=$(hostname)
 
