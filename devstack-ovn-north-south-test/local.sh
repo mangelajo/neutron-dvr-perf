@@ -5,6 +5,8 @@ set -x
 echo primary: $primary
 echo subnode1: $subnode1
 
+fip_interface=$(ip a | grep 10.127.0.130 | grep brd  | cut -d\  -f11)
+
 # http://blog.spinhirne.com/2016/09/an-introduction-to-ovn-routing.html
 
 ovn-nbctl ls-add inside
@@ -144,10 +146,10 @@ ovn-nbctl lsp-set-addresses outside-edge1 02:0a:7f:00:01:29
 ovn-nbctl lsp-set-options outside-edge1 router-port=edge1-outside
 
 # create a bridge for eth1
-sudo ovs-vsctl add-br br-eth2
+sudo ovs-vsctl add-br br-$fip_interface
 
 # create bridge mapping for eth1. map network name "dataNet" to br-eth2
-sudo ovs-vsctl set Open_vSwitch . external-ids:ovn-bridge-mappings=dataNet:br-eth2
+sudo ovs-vsctl set Open_vSwitch . external-ids:ovn-bridge-mappings=dataNet:br-$fip_interface
 
 # create localnet port on 'outside'. set the network name to "dataNet"
 ovn-nbctl lsp-add outside outside-localnet
@@ -157,11 +159,11 @@ ovn-nbctl lsp-set-options outside-localnet network_name=dataNet
 
 # connect eth2 to br-eth2
 #ovs-vsctl add-port br-eth2 eth2-internal -- set interface eth2-internal type=internal
-sudo ip addr del $floating_primary/24 dev eth2
-sudo ovs-vsctl add-port br-eth2 eth2
+sudo ip addr del $floating_primary/24 dev $fip_interface
+sudo ovs-vsctl add-port br-$fip_interface $fip_interface
 
-sudo ip addr add $floating_primary/25 dev br-eth2
-sudo ip link set dev br-eth2 up
+sudo ip addr add $floating_primary/25 dev br-$fip_interface
+sudo ip link set dev br-$fip_interface up
 
 ovn-nbctl -- --id=@nat create nat type="snat" logical_ip=172.16.255.128/25 \
         external_ip=10.127.0.129 -- add logical_router edge1 nat @nat
