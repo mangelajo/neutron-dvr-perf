@@ -1,0 +1,41 @@
+require '../providers.rb'
+require '../ovn.rb'
+
+IPS = {gw1: '192.168.42.20',
+       gw2: '192.168.42.21',
+       hv1: '192.168.42.22',
+       hv2: '192.168.42.23',
+       }
+Vagrant.configure('2') do |config|
+
+  config.ssh.forward_agent = true
+
+  config.vm.define 'gw1' do |gw1|
+    configure_providers(gw1.vm, :ram => 1500, :vcpus=>2);
+    gw1.vm.network 'private_network', ip: IPS[:gw1]
+    gw1.vm.hostname = 'gw1'
+    provision_ovn(gw1, 'ovn-gw.sh', env: IPS)
+  end
+
+  config.vm.define 'gw2' do |gw2|
+    configure_providers(gw2.vm, :ram => 1500, :vcpus=>2);
+    gw2.vm.network 'private_network', ip: IPS[:gw2]
+    gw2.vm.hostname = 'gw2'
+    provision_ovn(gw2, 'ovn-gw.sh', env: IPS)
+  end
+
+  config.vm.define 'hv1' do |hv1|
+    configure_providers(hv1.vm, :ram => 1500, :vcpus=>2);
+    hv1.vm.network 'private_network', ip: IPS[:hv1]
+    hv1.vm.hostname = 'hv1'
+    provision_ovn(hv1, 'ovn-hv.sh', env: IPS)
+  end
+
+  config.vm.define 'hv2' do |hv2|
+    configure_providers(hv2.vm, :ram => 1500, :vcpus=>2);
+    hv2.vm.network 'private_network', ip: IPS[:hv2]
+    hv2.vm.hostname = 'hv2'
+    provision_ovn(hv2, 'ovn-hv.sh', env: IPS)
+  end
+
+end
