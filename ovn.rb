@@ -8,7 +8,7 @@ def provision_ovn(config, script, env: nil)
     if script != nil then
         config.vm.provision :shell do |shell|
             shell.privileged = true
-            shell.path = '../scripts/' + script
+            shell.path = script
             shell.env = env
         end
     end

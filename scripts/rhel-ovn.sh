@@ -11,8 +11,6 @@ fi
 sudo yum install -y
 sudo yum remove -y firewalld
 
-/vagrant/scripts/install-netperf.sh
-
 sudo yum install -y --nogpgcheck  \
                     epel-release git git-review python-pip gcc python-devel \
                     openvswitch openvswitch-ovn-central openvswitch-ovn-host \
@@ -54,18 +52,6 @@ EOF
     sudo systemctl start ovn-northd
     sudo systemctl status ovn-northd
 fi
-
-sleep 2
-
-sudo ovs-vsctl set open . external-ids:ovn-bridge=br-int
-sudo ovs-vsctl set open . external-ids:system-id=$hostname
-sudo ovs-vsctl set open . external-ids:ovn-remote=tcp:${gw1}:6642
-sudo ovs-vsctl set open . external-ids:ovn-encap-type=geneve
-sudo ovs-vsctl set open . external-ids:ovn-encap-ip=$ip
-
-sleep 2
-
-sudo ovs-vsctl list open
 
 
 exit 0

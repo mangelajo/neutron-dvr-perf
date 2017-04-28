@@ -1,0 +1,28 @@
+
+gw1=${gw1:-192.168.42.20}
+
+OVN_NBDB="--db=tcp:$gw1:6641"
+OVN_SBDB="--db=tcp:$gw1:6642"
+
+
+add_phys_port() {
+    # this function will create a logical switch port on a switch,
+    # and then instantiate an internal port on br-int, move it
+    # to a namespace, and set it up
+
+    switch=$1 name=$2 mac=$3 ip=$4 mask=$5 gw=$6
+
+    ovn-nbctl $OVN_NBDB lsp-add $switch $name
+    ovn-nbctl $OVN_NBDB lsp-set-addresses $name "$mac $ip"
+
+    ip netns add $name
+    ovs-vsctl add-port br-int $name -- set interface $name type=internal
+    ip link set $name netns $name 
+    ip netns exec $name ip link set $name address $mac
+    ip netns exec $name ip addr add $ip/$mask dev $name 
+    ip netns exec $name ip link set $name up
+    ip netns exec $name ip route add default via $gw
+    ovs-vsctl set Interface $name external_ids:iface-id=$name
+}
+
+
