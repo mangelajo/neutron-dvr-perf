@@ -67,3 +67,8 @@ ovn-nbctl lsp-add external1-switch r1-external1-port \
 
 
 
+# add some basic NAT rules
+
+ovn-nbctl lr-nat-add R1 snat 10.0.0.1 192.168.0.0/16
+ovn-nbctl lr-nat-add R1 dnat_and_snat 10.0.0.16 192.168.1.3
+
