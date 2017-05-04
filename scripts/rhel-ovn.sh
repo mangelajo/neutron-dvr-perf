@@ -10,7 +10,7 @@ fi
 
 sudo yum install -y
 sudo yum remove -y firewalld
-
+sudo yum update -y kernel # fetch latest kernel
 sudo yum install -y --nogpgcheck  \
                     epel-release git git-review python-pip gcc python-devel \
                     openvswitch openvswitch-ovn-central openvswitch-ovn-host \
@@ -19,15 +19,19 @@ sudo yum install -y --nogpgcheck  \
                     redhat-rpm-config libtool checkpolicy selinux-policy-devel \
                     python-six vim
 
+
 sudo setenforce 0
 
 
 git clone https://github.com/openvswitch/ovs
 cd ovs
 ./boot.sh
-./configure --prefix=/
+./configure --prefix=/ --with-linux=/usr/lib/modules/`ls /usr/lib/modules/ | tail -n 1`/build
 make -j5 V=0 install
 sudo make install
+cd datapath/linux
+make all
+make modules_install
 
 # lookup my hostname IP from env
 hostname=$(hostname)
