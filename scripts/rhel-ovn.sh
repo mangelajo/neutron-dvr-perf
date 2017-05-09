@@ -26,7 +26,7 @@ sudo setenforce 0
 git clone https://github.com/openvswitch/ovs
 cd ovs
 ./boot.sh
-./configure --prefix=/ --with-linux=/usr/lib/modules/`ls /usr/lib/modules/ | tail -n 1`/build
+CFLAGS="-O0 -g" ./configure --prefix=/ --with-linux=/usr/lib/modules/`ls /usr/lib/modules/ | tail -n 1`/build
 make -j5 V=0 install
 sudo make install
 cd datapath/linux
