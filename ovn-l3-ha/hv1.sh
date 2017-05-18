@@ -13,7 +13,7 @@ sudo ovs-vsctl set open . external-ids:ovn-encap-ip=$ip
 
 
 # naive way to wait for the GW1 node
-sleep 20
+sleep 60
 
 add_phys_port internal1-switch vm1 00:00:01:01:02:0a 192.168.1.3 24 192.168.1.1
 add_phys_port internal2-switch vm2 00:00:01:01:02:0b 192.168.2.3 24 192.168.2.1

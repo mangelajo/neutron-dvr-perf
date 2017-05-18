@@ -22,9 +22,20 @@ sudo yum install -y --nogpgcheck  \
 
 sudo setenforce 0
 
+GIT_REPO=${GIT_REPO:-https://github.com/mangelajo/ovs}
+GIT_BRANCH=${GIT_BRANCH:-l3ha}
 
-git clone https://github.com/openvswitch/ovs
+git clone $GIT_REPO
 cd ovs
+
+git remote add mangelajo https://github.com/mangelajo/ovs
+git remote add anil  https://github.com/venkataanil/ovs
+git remote add upstream https://github.com/openvswitch/ovs
+
+if [[ "z$GIT_BRANCH" != "z" ]]; then
+    git checkout $GIT_BRANCH
+fi
+
 ./boot.sh
 CFLAGS="-O0 -g" ./configure --prefix=/ --with-linux=/usr/lib/modules/`ls /usr/lib/modules/ | tail -n 1`/build
 make -j5 V=0 install

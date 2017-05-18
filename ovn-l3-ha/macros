@@ -25,4 +25,36 @@ add_phys_port() {
     ovs-vsctl set Interface $name external_ids:iface-id=$name
 }
 
+move_eth2_to_br_ext() {
 
+    sudo cp /etc/sysconfig/network-scripts/ifcfg-eth2 \
+            /etc/sysconfig/network-scripts/old-ifcfg-eth2
+    cat | sudo tee /etc/sysconfig/network-scripts/ifcfg-eth2 <<END
+DEVICE=eth2
+NAME=eth2
+DEVICETYPE=ovs
+TYPE=OVSPort
+OVS_BRIDGE=br-ext
+ONBOOT=yes
+BOOTPROTO=none
+END
+
+    cat | sudo tee /etc/sysconfig/network-scripts/ifcfg-br-ext <<END
+ONBOOT="yes"
+DEVICE=br-ext
+NAME=br-ext
+DEVICETYPE=ovs
+OVSBOOTPROTO="static"
+TYPE=OVSBridge
+END
+
+    sudo cat /etc/sysconfig/network-scripts/old-ifcfg-eth2 | \
+       grep IPADDR | sudo tee -a /etc/sysconfig/network-scripts/ifcfg-br-ext
+    sudo cat /etc/sysconfig/network-scripts/old-ifcfg-eth2 | \
+        grep NETMASK | sudo tee -a /etc/sysconfig/network-scripts/ifcfg-br-ext
+
+    sudo ifdown eth2
+    sudo ifdown br-ext
+    sudo ifup br-ext
+    sudo ifup eth2
+}

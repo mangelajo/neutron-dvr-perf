@@ -13,12 +13,11 @@ sudo ovs-vsctl set open . external-ids:ovn-encap-ip=$ip
 
 sudo ovs-vsctl list open
 
-ovs-vsctl add-br br-ext
+ovs-vsctl --may-exist add-br br-ext
 ovs-vsctl br-set-external-id br-ext bridge-id br-ext
 ovs-vsctl br-set-external-id br-int bridge-id br-int
+move_eth2_to_br_ext
 
-ip link set dev br-ext up
-ip addr add 10.0.0.111/24 dev br-ext
 
 
 ovn-nbctl ls-add internal1-switch
@@ -35,19 +34,16 @@ ovn-nbctl lsp-set-type external1-localnet localnet
 ovn-nbctl lsp-set-options external1-localnet network_name=ext
 
 
+
 # create a distributed router with a redirect-chassis on gw1 to reach
 # external1-switch
 
 ovn-nbctl lr-add R1
 
-gw1_chassis=$(ovn-sbctl --bare --columns=name find Chassis hostname=gw1)
 
 ovn-nbctl lrp-add R1 internal1-port 00:00:01:01:02:03 192.168.1.1/24
 ovn-nbctl lrp-add R1 internal2-port 00:00:01:01:02:04 192.168.2.1/24
-ovn-nbctl lrp-add R1 external1-port  00:00:01:01:02:05 10.0.0.1/24 -- \
-          set Logical_Router_Port external1-port \
-          options:redirect-chassis=${gw1_chassis}
-
+ovn-nbctl lrp-add R1 external1-port  00:00:01:01:02:05 10.0.0.1/24
 
 ovn-nbctl lsp-add internal1-switch r1-internal1-port \
           -- lsp-set-options r1-internal1-port router-port=internal1-port \
@@ -65,10 +61,16 @@ ovn-nbctl lsp-add external1-switch r1-external1-port \
           -- lsp-set-type r1-external1-port router \
           -- lsp-set-addresses r1-external1-port router
 
+sleep 30 # sleep a bit with the hope of finding gw2, we will retry on gw2.sh
+gw1_chassis=$(ovn-sbctl --bare --columns=name find Chassis hostname=gw1)
+gw2_chassis=$(ovn-sbctl --bare --columns=name find Chassis hostname=gw2)
+ovn-nbctl set Logical_Router_Port external1-port \
+          options:redirect-chassis=${gw1_chassis}:20,${gw2_chassis}:10
 
 
 # add some basic NAT rules
 
 ovn-nbctl lr-nat-add R1 snat 10.0.0.1 192.168.0.0/16
 ovn-nbctl lr-nat-add R1 dnat_and_snat 10.0.0.16 192.168.1.3
+ovn-nbctl lr-nat-add R1 dnat_and_snat 10.0.0.17 192.168.1.4
 

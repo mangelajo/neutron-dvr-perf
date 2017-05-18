@@ -1,31 +1,59 @@
 require '../providers.rb'
 require '../ovn.rb'
 
-RAM = 500
+RAM = 300
 
 IPS = {gw1: '192.168.42.20',
+       gw1_2: '10.0.0.64',
        gw2: '192.168.42.21',
+       gw2_2: '10.0.0.65',
+       svc1: '10.0.0.111',
        hv1: '192.168.42.22',
        hv2: '192.168.42.23',
        }
+
+#
+#  +-------+ 192.168.42.22  |   192.168.42.20  +-------+ 10.0.0.64
+#  |  hv1  |----------------|------------------+  gw1  +----------|
+#  +-------+                |                  +-------+          |    +------+
+#                           |                                     |----+ svc1 |
+#  +-------+ 192.168.42.23  |   192.168.42.21  +-------+          |     +------+
+#  |  hv2  +----------------|------------------+  gw2  +----------|    10.0.0.111
+#  +-------+                |                  +-------+ 10.0.0.65
+#                     (private_network)                  (private_network2)
+
+
 Vagrant.configure('2') do |config|
 
   config.ssh.forward_agent = true
 
+  # svc1 is a service host meant to be accessible through the external network
+  # to the hypervisors
+  config.vm.define 'svc1' do |svc1|
+    configure_providers(svc1.vm, :ram => RAM, :vcpus=>1);
+    svc1.vm.network 'private_network', ip: IPS[:svc1]
+    svc1.vm.hostname = 'svc1'
+  end
+
+  # gw1 is a gateway node
   config.vm.define 'gw1' do |gw1|
     configure_providers(gw1.vm, :ram => RAM, :vcpus=>2);
     gw1.vm.network 'private_network', ip: IPS[:gw1]
+    gw1.vm.network 'private_network', ip: IPS[:gw1_2]
     gw1.vm.hostname = 'gw1'
     provision_ovn(gw1, 'gw1.sh', env: IPS)
   end
 
+  # gw2 is another gateway node
   config.vm.define 'gw2' do |gw2|
     configure_providers(gw2.vm, :ram => RAM, :vcpus=>2);
     gw2.vm.network 'private_network', ip: IPS[:gw2]
+    gw2.vm.network 'private_network', ip: IPS[:gw2_2]
     gw2.vm.hostname = 'gw2'
     provision_ovn(gw2, 'gw2.sh', env: IPS)
   end
 
+  # hv1 is a node only connected to the internal network 
   config.vm.define 'hv1' do |hv1|
     configure_providers(hv1.vm, :ram => RAM, :vcpus=>2);
     hv1.vm.network 'private_network', ip: IPS[:hv1]
@@ -33,6 +61,7 @@ Vagrant.configure('2') do |config|
     provision_ovn(hv1, 'hv1.sh', env: IPS)
   end
 
+  # hv2 is a second node only connected to the internal network
   config.vm.define 'hv2' do |hv2|
     configure_providers(hv2.vm, :ram => RAM, :vcpus=>2);
     hv2.vm.network 'private_network', ip: IPS[:hv2]
