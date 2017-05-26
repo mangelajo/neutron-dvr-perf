@@ -1,5 +1,5 @@
-require '../providers.rb'
-require '../ovn.rb'
+require '../lib/providers.rb'
+require '../lib/ovn.rb'
 
 RAM = 300
 

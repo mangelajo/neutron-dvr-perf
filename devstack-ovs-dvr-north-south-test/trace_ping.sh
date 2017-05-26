@@ -1,1 +1,1 @@
-../trace_ping.sh
+../common/trace_ping.sh

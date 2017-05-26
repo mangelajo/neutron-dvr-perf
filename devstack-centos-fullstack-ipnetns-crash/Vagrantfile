@@ -1,5 +1,5 @@
-require '../providers.rb'
-require '../devstack.rb'
+require '../lib/providers.rb'
+require '../lib/devstack.rb'
 
 IPS = {primary: '192.168.42.30',
        floating_primary: '10.127.1.130',
