@@ -1,5 +1,3 @@
-Vagrant.require_plugin "vagrant-reload"
-
 def provision_ovn(config, script, env: nil)
     config.vm.provision :shell, privileged:true, path: '../lib/scripts/rhel-ovn.sh',
                         env:env
