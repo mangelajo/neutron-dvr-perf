@@ -1,7 +1,7 @@
 #!/bin/sh
 cd ~
 sudo yum install -y epel-release
-sudo yum install -y vim vim-enhanced ctags unzip python-flake8
+sudo yum install -y vim vim-enhanced ctags unzip python-flake8 fpaste
 
 # colorify my prompt
 cp /vagrant/bashrc_prompt >.bashrc
