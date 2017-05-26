@@ -50,22 +50,23 @@ ip=${!hostname}
 
 echo hostname: $hostname, ip: $ip
 
-for n in openvswitch ovn-controller ; do
-    sudo systemctl enable $n
-    sudo systemctl start $n
-    systemctl status $n
-done
-
 #
-# on gw1 we run the ovn-northd controller
+# on ctl we run the ovn-northd controller
 #
-if [[ "$hostname" == "gw1" ]]; then
+if [[ "$hostname" == "ctl" ]]; then
     cat | sudo tee /etc/sysconfig/ovn-northd <<EOF
 OVN_NORTHD_OPTS="--db-sb-create-insecure-remote=yes --db-nb-create-insecure-remote=yes"
 EOF
     sudo systemctl enable ovn-northd
     sudo systemctl start ovn-northd
     sudo systemctl status ovn-northd
+else
+
+    for n in openvswitch ovn-controller ; do
+        sudo systemctl enable $n
+        sudo systemctl start $n
+        systemctl status $n
+    done
 fi
 
 

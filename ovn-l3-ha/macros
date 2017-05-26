@@ -1,8 +1,8 @@
 
-gw1=${gw1:-192.168.42.20}
+ctl=${ctl:-192.168.42.19}
 
-OVN_NBDB="--db=tcp:$gw1:6641"
-OVN_SBDB="--db=tcp:$gw1:6642"
+OVN_NBDB="--db=tcp:$ctl:6641"
+OVN_SBDB="--db=tcp:$ctl:6642"
 
 
 add_phys_port() {

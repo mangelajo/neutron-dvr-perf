@@ -3,7 +3,8 @@ require '../lib/ovn.rb'
 
 RAM = 300
 
-IPS = {gw1: '192.168.42.20',
+IPS = {ctl: '192.168.42.19',
+       gw1: '192.168.42.20',
        gw1_2: '10.0.0.64',
        gw2: '192.168.42.21',
        gw2_2: '10.0.0.65',
@@ -13,6 +14,11 @@ IPS = {gw1: '192.168.42.20',
        }
 
 #
+#                       +--------+
+#                       | ctl    |
+#                       +---+----+
+#                           | 192.168.42.19
+#                           |
 #  +-------+ 192.168.42.22  |   192.168.42.20  +-------+ 10.0.0.64
 #  |  hv1  |----------------|------------------+  gw1  +----------|
 #  +-------+                |                  +-------+          |    +------+
@@ -35,6 +41,14 @@ Vagrant.configure('2') do |config|
     svc1.vm.hostname = 'svc1'
   end
 
+  # ctl as controller node (northd/southd)
+  config.vm.define 'ctl' do |ctl|
+    configure_providers(ctl.vm, :ram => RAM, :vcpus=>2);
+    ctl.vm.network 'private_network', ip: IPS[:ctl]
+    ctl.vm.hostname = 'ctl'
+    provision_ovn(ctl, 'ctl.sh', env: IPS)
+  end
+  
   # gw1 is a gateway node
   config.vm.define 'gw1' do |gw1|
     configure_providers(gw1.vm, :ram => RAM, :vcpus=>2);
