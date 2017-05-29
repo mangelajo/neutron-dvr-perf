@@ -18,7 +18,7 @@ ovs-vsctl br-set-external-id br-ext bridge-id br-ext
 ovs-vsctl br-set-external-id br-int bridge-id br-int
 move_eth2_to_br_ext
 
-
+sleep 10 # wait on ctl
 
 ovn-nbctl $OVN_NBDB ls-add internal1-switch
 ovn-nbctl $OVN_NBDB ls-add internal2-switch

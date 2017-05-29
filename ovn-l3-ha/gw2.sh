@@ -17,7 +17,7 @@ ovs-vsctl br-set-external-id br-int bridge-id br-int
 ovs-vsctl set open . external-ids:ovn-bridge-mappings=ext:br-ext
 move_eth2_to_br_ext
 
-sleep 10
+sleep 10 # wait on ctl
 
 
 gw1_chassis=$(ovn-sbctl $OVN_SBDB --bare --columns=name find Chassis hostname=gw1)
