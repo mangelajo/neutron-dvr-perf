@@ -64,9 +64,22 @@ ovn-nbctl $OVN_NBDB lsp-add external1-switch r1-external1-port \
 sleep 30 # sleep a bit with the hope of finding gw2, we will retry on gw2.sh
 gw1_chassis=$(ovn-sbctl $OVN_SBDB --bare --columns=name find Chassis hostname=gw1)
 gw2_chassis=$(ovn-sbctl $OVN_SBDB --bare --columns=name find Chassis hostname=gw2)
-ovn-nbctl $OVN_NBDB set Logical_Router_Port external1-port \
-          options:redirect-chassis=${gw1_chassis}:20,${gw2_chassis}:10
+# via chassis redirect (this way is was what we used on l3ha-v1 patches)
+#ovn-nbctl $OVN_NBDB set Logical_Router_Port external1-port \
+#          options:redirect-chassis=${gw1_chassis}:20,${gw2_chassis}:10
 
+ovn-nbctl $OVN_NBDB \
+          --id=@gc0 create Gateway_Chassis name=external1-port_gw1 \
+                                           chassis_name=${gw1_chassis} \
+                                           priority=20 -- \
+          --id=@gc1 create Gateway_Chassis name=external1-port_gw2 \
+                                           chassis_name=${gw2_chassis} \
+                                           priority=10 -- \
+          set Logical_Router_Port external1-port 'gateway_chassis=[@gc0,@gc1]'
+
+#via l3gw
+#ovn-nbctl $OVN_NBDB set Logical_Router R1 \ 
+#        options:chassis=$gw2_chassis:10,$gw1_chassis:1
 
 # add some basic NAT rules
 
