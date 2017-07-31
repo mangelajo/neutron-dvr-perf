@@ -20,3 +20,5 @@ git config --global user.name "Miguel Angel Ajo"
 git config --global user.email "majopela@redhat.com"
 git config --global core.editor vim
 
+git config --global sendemail.smtpserver "smtp.redhat.com"
+git config --global sendemail.smtpserverport 587

@@ -17,13 +17,13 @@ sudo yum install -y --nogpgcheck  \
                     make autoconf openssl-devel automake python-devel \
                     kernel-devel graphviz kernel-debug-devel rpm-build \
                     redhat-rpm-config libtool checkpolicy selinux-policy-devel \
-                    python-six vim
+                    python-six vim net-tools wget
 
 
 sudo setenforce 0
 
-GIT_REPO=${GIT_REPO:-https://github.com/mangelajo/ovs}
-GIT_BRANCH=${GIT_BRANCH:-l3ha}
+GIT_REPO=${GIT_REPO:-https://github.com/openvswitch/ovs}
+GIT_BRANCH=${GIT_BRANCH:-master}
 
 git clone $GIT_REPO
 cd ovs
@@ -57,6 +57,12 @@ if [[ "$hostname" == "ctl" ]]; then
     cat | sudo tee /etc/sysconfig/ovn-northd <<EOF
 OVN_NORTHD_OPTS="--db-sb-create-insecure-remote=yes --db-nb-create-insecure-remote=yes"
 EOF
+    for what in nb sb; do
+        sudo cp /home/vagrant/ovs/ovn/ovn-${what}.ovsschema /usr/share/openvswitch/
+        sudo ovsdb-tool convert /var/lib/openvswitch/ovn${what}_db.db \
+                            /home/vagrant/ovs/ovn/ovn-${what}.ovsschema
+    done
+
     sudo systemctl enable ovn-northd
     sudo systemctl start ovn-northd
     sudo systemctl status ovn-northd
