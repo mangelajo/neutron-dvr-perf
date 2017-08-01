@@ -1,9 +1,5 @@
 #!/bin/sh
 
 echo local.compute.sh executed!
-echo primary: $primary
-echo subnode1: $subnode1
+sudo ovs-vsctl remove Open_vSwitch . external-ids ovn-bridge-mappings
 
-sudo bash << EOF
-
-EOF
