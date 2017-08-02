@@ -4,8 +4,8 @@ set -x
 
 echo primary: $primary
 
-fip_interface=$(ip a | grep 10\.127\.0. | awk '/brd/{ print $NF }')
-fip_ip_mask=$(ip a | grep 10\.127\.0. | awk '/brd/{ print $2 }')
+fip_interface=$(ip a | grep 172\.24\.4 | awk '/brd/{ print $NF }')
+fip_ip_mask=$(ip a | grep 172\.24\.4 | awk '/brd/{ print $2 }')
 
 sudo ovs-vsctl add-br br-$fip_interface
 sudo ovs-vsctl set Open_vSwitch . external-ids:ovn-bridge-mappings=public:br-$fip_interface

@@ -6,10 +6,16 @@ IPS = {primary: '192.168.42.20',
        gw2: '192.168.42.22',
        compute1: '192.168.42.23',
        compute2: '192.168.42.24',
-       floating_gw1: '10.127.0.130',
-       floating_gw2: '10.127.0.131',
-       floating_compute1: '10.127.0.132',
-       floating_compute2: '10.127.0.133'}
+       floating_primary: '172.24.4.110',
+       floating_gw1: '172.24.4.111',
+       floating_gw2: '172.24.4.112',
+       floating_compute1: '172.24.4.113',
+       floating_compute2: '172.24.4.115'}
+
+def ip_env(my_ip)
+    return IPS.merge({'my_ip' => IPS[my_ip]})
+end
+
 
 Vagrant.configure('2') do |config|
 
@@ -18,11 +24,12 @@ Vagrant.configure('2') do |config|
   config.vm.define 'primary' do |primary|
     configure_providers(primary.vm, :ram => 6000, :vcpus=>2);
     primary.vm.network 'private_network', ip: IPS[:primary]
+    primary.vm.network 'private_network', ip: IPS[:floating_primary]
     primary.vm.hostname = 'primary'
     provision_devstack(primary,
                        local_conf: 'local.primary.conf',
                        local_sh: 'local.primary.sh',
-                       env: IPS)
+                       env: ip_env(:primary))
   end
 
   [:gw1, :gw2].each do |gw_n|
@@ -35,7 +42,7 @@ Vagrant.configure('2') do |config|
         provision_devstack(gw,
                            local_conf: 'local.gw.conf',
                            local_sh: 'local.gw.sh',
-                           env: IPS)
+                           env: ip_env(gw_n))
       end
   end
 
@@ -49,7 +56,7 @@ Vagrant.configure('2') do |config|
         provision_devstack(compute,
                            local_conf: 'local.computenode.conf',
                            local_sh: 'local.computenode.sh',
-                           env: IPS)
+                           env: ip_env(compute_n))
       end
   end
   
