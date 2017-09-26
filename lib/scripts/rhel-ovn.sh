@@ -17,7 +17,7 @@ sudo yum install -y --nogpgcheck  \
                     make autoconf openssl-devel automake python-devel \
                     kernel-devel graphviz kernel-debug-devel rpm-build \
                     redhat-rpm-config libtool checkpolicy selinux-policy-devel \
-                    python-six vim net-tools wget
+                    python-six vim net-tools wget libcap-ng-devel
 
 
 sudo setenforce 0
