@@ -22,6 +22,8 @@ sudo yum install -y --nogpgcheck  \
 
 sudo setenforce 0
 
+sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
+
 GIT_REPO=${GIT_REPO:-https://github.com/openvswitch/ovs}
 GIT_BRANCH=${GIT_BRANCH:-master}
 
