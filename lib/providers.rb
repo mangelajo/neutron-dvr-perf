@@ -2,7 +2,8 @@ def configure_providers(vm, os:nil, ram:nil, vcpus:nil)
 
     boxes = {:virtualbox => {'trusty64' => 'ubuntu/trusty64',
                              'centos7'  => 'centos/7'},
-             :libvirt    => {'trusty64' => 'celebdor/trusty64',
+             :libvirt    => {'xenial64' => 'algebro/ubuntu1604',
+                             'trusty64' => 'celebdor/trusty64',
                              'centos7'  => 'centos/7'},
              :parallels  => {'trusty64' => 'parallels/trusty64',
                              'centos7'  => 'parallels/centos-7.0'}}
