@@ -84,11 +84,13 @@ def parseSSHConfig(c,o):
   host = re.compile("Host\s+(.+)$")
   addr = re.compile("\s*HostName\s+(.+)$")  #[0-9a-fA-F.]
   port = re.compile("\s*Port\s+([0-9]+)$")
+  idfile = re.compile("\s*IdentityFile\s\"(.+)\"$")
 
   for line in c.split("\n"):
     m_host = host.match(line)
     m_addr = addr.match(line)
     m_port = port.match(line)
+    m_idfile = idfile.match(line)
 
     if m_host:
       addPreviousNode(nodes,node)
@@ -97,6 +99,8 @@ def parseSSHConfig(c,o):
       node['addr'] = m_addr.groups()[0]
     elif m_port:
       node['port'] = m_port.groups()[0]
+    elif m_idfile:
+      node['sshkey'] = m_idfile.groups()[0]
 
   addPreviousNode(nodes,node)
   return nodes
@@ -115,7 +119,10 @@ def printInventory(nodeList,opts):
     if "skip" in opts:
       skip = skipMatch.match(d['host'])
     if not(skip):
-      print "{host:<10} ansible_host={addr:<16} ansible_port={port:<5} ansible_user={username} ansible_ssh_pass={password}".format(**d)
+      if d['sshkey']:
+        print "{host:<10} ansible_host={addr:<16} ansible_port={port:<5} ansible_user={username} ansible_ssh_private_key_file={sshkey}".format(**d)
+      else:
+        print "{host:<10} ansible_host={addr:<16} ansible_port={port:<5} ansible_user={username} ansible_ssh_pass={password}".format(**d)
 
 def main():
   opts = getOptions()
