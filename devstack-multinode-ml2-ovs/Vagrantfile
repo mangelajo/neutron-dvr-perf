@@ -1,0 +1,36 @@
+require '../lib/providers.rb'
+require '../lib/devstack.rb'
+
+IPS = {primary: '192.168.42.30',
+       subnode1: '192.168.42.31',
+       floating_primary: '10.127.1.130',
+       floating_subnode1: '10.127.1.131',
+       floating_testip: '10.127.1.132'}
+
+Vagrant.configure('2') do |config|
+
+  config.ssh.forward_agent = true
+
+  config.vm.define 'primary' do |primary|
+    configure_providers(primary.vm, :ram => 6000, :vcpus=>2);
+    primary.vm.network 'private_network', ip: IPS[:primary]
+    primary.vm.network 'private_network', ip: IPS[:floating_primary]
+    primary.vm.hostname = 'primary'
+    provision_devstack(primary,
+                       local_conf: 'local.conf',
+                       local_sh: 'local.sh',
+                       env: IPS)
+  end
+
+  config.vm.define 'subnode1' do |subnode1|
+    configure_providers(subnode1.vm, :ram => 3000, :vcpus=>2);
+    subnode1.vm.network 'private_network', ip: IPS[:subnode1]
+    subnode1.vm.network 'private_network', ip: IPS[:floating_primary]
+    subnode1.vm.hostname = 'subnode1'
+    provision_devstack(subnode1,
+                       local_conf: 'local.computenode.conf',
+                       local_sh: 'local.computenode.sh',
+                       env: IPS)
+  end
+
+end
