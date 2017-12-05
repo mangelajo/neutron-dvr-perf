@@ -58,6 +58,9 @@ sudo ovs-vsctl -- --may-exist add-port br-int vm1 \
                external_ids:iface-status=active external_ids:owner=admin \
                other_config:tag=1
 
+
+chattr +i /etc/resolv.conf
+
 sudo ip link set vm1 address $DMZ_VM1_MAC
 
 sudo ip link set vm1 netns vm1

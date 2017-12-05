@@ -25,6 +25,8 @@ sudo ovs-vsctl -- --may-exist add-port br-int vm2 \
                external_ids:iface-status=active external_ids:owner=admin \
                other_config:tag=1
 
+chattr +i /etc/resolv.conf
+
 sudo ip link set vm2 address $DMZ_VM2_MAC
 
 sudo ip link set vm2 netns vm2
