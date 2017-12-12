@@ -1,0 +1,45 @@
+---
+- name: Setup local networking ovn git repo (local)
+  hosts: localhost
+  tasks:
+      - local_action:
+          module: git
+          repo: 'https://git.openstack.org/openstack/networking-ovn'
+          dest: './networking-ovn'
+          force: no
+        ignore_errors: yes
+
+      - local_action: shell cd networking-ovn; git fetch https://git.openstack.org/openstack/networking-ovn {{ git_refspec }} && git checkout FETCH_HEAD
+        ignore_errors: yes
+
+- name: Setup local networking ovn git repo
+  hosts: controllers:computes
+  become: true
+  tasks:
+      - synchronize:
+          src: './networking-ovn'
+          dest: '/opt/stack/'
+          recursive: yes
+        tags:
+          - update-and-start
+
+      - shell: cd /opt/stack/networking-ovn; python setup.py install
+        tags:
+          - update-and-start
+
+      - name: Start the migration agent everywhere
+        shell: |
+          kill -9 $(cat /opt/stack/data/neutron/ovn-migration-agent.pid) || true
+          networking-ovn-migration-agent --config-file /etc/neutron/neutron.conf --log-file /opt/stack/logs/networking-ovn-migration-agent.log
+        tags:
+          - update-and-start
+
+- name: Run the migration cli from controller
+  hosts: controllers
+  tasks:
+      - name: Run the start from CLI
+        shell: |
+          sleep 5
+          networking-ovn-migration-cli --config-file /etc/neutron/neutron.conf
+        tags:
+          - call-agents
